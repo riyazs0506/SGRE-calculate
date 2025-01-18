@@ -63,7 +63,7 @@
 </div>
 
 <script>
-  document.getElementById('schemeForm').addEventListener('submit', function(event) {
+  document.getElementById('schemeForm').addEventListener('submit', async function(event) {
     event.preventDefault();
 
     // Get form inputs
@@ -76,6 +76,31 @@
     const totalAmount = entryAmount * totalMonths * 30; // Total amount for all months
     const taxAmount = (totalAmount * taxPercentage) / 100; // Tax amount
     const totalReceiveAmount = totalAmount - taxAmount; // Amount after tax deduction
+
+    // Prepare data for the backend
+    const scheme = {
+      name: schemeName,
+      entryAmount: entryAmount,
+      totalMonths: totalMonths,
+      taxPercentage: taxPercentage,
+      totalAmount: totalAmount,
+      taxAmount: taxAmount,
+      totalReceiveAmount: totalReceiveAmount
+    };
+
+    // Send the data to the backend
+    const response = await fetch('/api/schemes/save', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(scheme)
+    });
+
+    if (response.ok) {
+      const savedScheme = await response.json();
+      alert('Scheme saved successfully with ID: ' + savedScheme.id);
+    } else {
+      alert('Failed to save scheme.');
+    }
 
     // Add results to the table
     const resultsTableBody = document.querySelector('#resultsTable tbody');

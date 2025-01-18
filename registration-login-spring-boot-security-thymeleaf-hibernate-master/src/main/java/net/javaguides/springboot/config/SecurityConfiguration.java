@@ -19,44 +19,47 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
 	@Autowired
 	private UserService userService;
-	
+
 	@Bean
-    public BCryptPasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
-	
-	@Bean
-    public DaoAuthenticationProvider authenticationProvider() {
-        DaoAuthenticationProvider auth = new DaoAuthenticationProvider();
-        auth.setUserDetailsService(userService);
-        auth.setPasswordEncoder(passwordEncoder());
-        return auth;
-    }
-	
-	@Override
-    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-        auth.authenticationProvider(authenticationProvider());
-    }
-	
-	@Override
-	protected void configure(HttpSecurity http) throws Exception {
-		http.authorizeRequests().antMatchers(
-				 "/registration**",
-	                "/js/**",
-	                "/css/**",
-	                "/img/**").permitAll()
-		.anyRequest().authenticated()
-		.and()
-		.formLogin()
-		.loginPage("/login")
-		.permitAll()
-		.and()
-		.logout()
-		.invalidateHttpSession(true)
-		.clearAuthentication(true)
-		.logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
-		.logoutSuccessUrl("/login?logout")
-		.permitAll();
+	public BCryptPasswordEncoder passwordEncoder() {
+		return new BCryptPasswordEncoder();
 	}
 
+	@Bean
+	public DaoAuthenticationProvider authenticationProvider() {
+		DaoAuthenticationProvider auth = new DaoAuthenticationProvider();
+		auth.setUserDetailsService(userService);
+		auth.setPasswordEncoder(passwordEncoder());
+		return auth;
+	}
+
+	@Override
+	protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+		auth.authenticationProvider(authenticationProvider());
+	}
+
+	@Override
+	protected void configure(HttpSecurity http) throws Exception {
+		http.csrf().disable() // Disable CSRF for simplicity (not recommended in production)
+				.authorizeRequests()
+				.antMatchers(
+						"/registration**",  // Public access to registration
+						"/js/**",          // Allow static JS files
+						"/css/**",         // Allow static CSS files
+						"/img/**",         // Allow static image files
+						"/api/schemes/save" // Allow access to save API without authentication
+				).permitAll() // Permit all users to access these endpoints
+				.anyRequest().authenticated() // All other requests require authentication
+				.and()
+				.formLogin()
+				.loginPage("/login") // Custom login page
+				.permitAll() // Allow everyone to see the login page
+				.and()
+				.logout()
+				.invalidateHttpSession(true)
+				.clearAuthentication(true)
+				.logoutRequestMatcher(new AntPathRequestMatcher("/logout")) // Custom logout path
+				.logoutSuccessUrl("/login?logout") // Redirect to login after logout
+				.permitAll();
+	}
 }
