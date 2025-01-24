@@ -38,5 +38,10 @@ public class MainController {
 		return "calculate";
 	}
 
+	@GetMapping("/admin")
+	public String adminpage() {
+		return "admin";
+	}
+
 
 }

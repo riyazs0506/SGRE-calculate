@@ -49,6 +49,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 						"/img/**",         // Allow static image files
 						"/api/schemes/save" // Allow access to save API without authentication
 				).permitAll() // Permit all users to access these endpoints
+				.antMatchers("/admin").hasAuthority("ADMIN")
 				.anyRequest().authenticated() // All other requests require authentication
 				.and()
 				.formLogin()

@@ -61,4 +61,7 @@ public class SchemeService {
         return schemeRepository.findAll();
     }
 
+    public Scheme saveScheme(Scheme scheme) {
+        return schemeRepository.save(scheme);
+    }
 }
